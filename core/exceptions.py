@@ -5,6 +5,7 @@ from django.http import Http404
 from django.core.exceptions import PermissionDenied
 from rest_framework.exceptions import APIException
 from rest_framework.utils.serializer_helpers import ReturnDict
+from restapi.response import DictResponse
 
 
 class Unauthorized(APIException):
@@ -33,47 +34,29 @@ def custom_exception_handler(exc, context):
     if response is None:
         # Handle exceptions that are not caught by DRF's default exception handler
         if isinstance(exc, Http404):
-            response = Response(
-                {
-                    "error": True,
-                    "message": "Not found",
-                    "status_code": status.HTTP_404_NOT_FOUND,
-                },
+            response = DictResponse(
+                "Not found",
                 status=status.HTTP_404_NOT_FOUND,
             )
         elif isinstance(exc, Unauthorized):
-            response = Response(
-                {
-                    "error": True,
-                    "message": "Unauthorized",
-                    "status_code": status.HTTP_401_UNAUTHORIZED,
-                },
+            response = DictResponse(
+                "Unauthorized access",
                 status=status.HTTP_401_UNAUTHORIZED,
             )
-            response.remove_cookie("access-token")
-            response.remove_cookie("refresh-token")
+            response.delete_cookie("access-token")
+            response.delete_cookie("refresh-token")
         elif isinstance(exc, PermissionDenied):
-            response = Response(
-                {
-                    "error": True,
-                    "message": "Permission denied",
-                    "status_code": status.HTTP_403_FORBIDDEN,
-                },
-                status=status.HTTP_403_FORBIDDEN,
+            response = DictResponse(
+                "Permission denied", status=status.HTTP_403_FORBIDDEN
             )
         elif isinstance(exc, APIException):
-            response = Response(
-                {"error": True, "message": str(exc), "status_code": exc.status_code},
+            response = DictResponse(
+                str(exc),
                 status=exc.status_code,
             )
         else:
-            # General error fallback
-            response = Response(
-                {
-                    "error": True,
-                    "message": "Internal server error",
-                    "status_code": status.HTTP_500_INTERNAL_SERVER_ERROR,
-                },
+            response = DictResponse(
+                "Internal server error",
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 

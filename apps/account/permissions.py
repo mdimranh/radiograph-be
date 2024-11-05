@@ -6,7 +6,7 @@ class AdminPermission(permissions.BasePermission):
     Global permission check for blocked IPs.
     """
 
-    def has_permission(self, request):
+    def has_permission(self, request, view):
         user = request.user
         if user.is_authenticated:
-            return user.role.name == "admin"
+            return user.role and user.role.name == "admin"

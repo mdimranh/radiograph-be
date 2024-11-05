@@ -12,6 +12,7 @@ class JwtTokenMiddleware(object):
         self.get_response = get_response
 
     def process_request(self, request):
+
         if self._is_excluded_url(request.path):
             return request
 
