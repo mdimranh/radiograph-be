@@ -53,75 +53,79 @@ class login(ApiView):
 
 
 class verify(ApiView):
+    permission_classes_for_get = [IsAuthenticated]
+
     def get(self, request):
-        if request.user.is_authenticated:
-            return DictResponse("Token verified")
-        access_token = request.COOKIES.get("access-token")
-        refresh_token = request.COOKIES.get("refresh-token")
-        visitor_id = request.COOKIES.get("visitorId") or request.headers.get(
-            "visitorId"
-        )
-        if access_token:
-            session = Session.objects.filter(
-                access_token=access_token, visitor_id=visitor_id
-            ).first()
-            if not session:
-                session = Session.objects.filter(
-                    refresh_token=refresh_token,
-                    visitor_id=visitor_id,
-                    refresh_token_expires__gt=timezone.now(),
-                ).first()
-                if not session:
-                    return DictResponse("Invalid token", status=401)
-                session.update_access_token()
-                response = DictResponse({"message": "Token verified"})
-                response.set_cookie(
-                    "access-token",
-                    session.access_token,
-                    path="/",
-                    expires=session.access_token_expires,
-                    httponly=False,
-                    samesite="None",
-                    secure=True,
-                )
-            if (
-                session.access_token_expires < timezone.now()
-                and session.refresh_token_expires > timezone.now()
-            ):
-                session.update_access_token()
-                response = DictResponse("Token verified")
-                response.set_cookie(
-                    "access-token",
-                    session.access_token,
-                    path="/",
-                    expires=session.access_token_expires,
-                    httponly=False,
-                    samesite="None",
-                    secure=True,
-                )
-        if refresh_token:
-            session = Session.objects.filter(
-                refresh_token=refresh_token,
-                visitor_id=visitor_id,
-                refresh_token_expires__gt=timezone.now(),
-            ).first()
-            if not session:
-                response = DictResponse("Invalid token", status=401)
-                response.remove_cookie("refresh-token")
-                return response
-            session.update_access_token()
-            response = DictResponse("Token verified")
-            response.set_cookie(
-                "access-token",
-                session.access_token,
-                path="/",
-                expires=session.access_token_expires,
-                httponly=False,
-                samesite="None",
-                secure=True,
-            )
-            return response
-        return DictResponse("Invalid token", status=401)
+        return DictResponse("Token verified")
+        # if request.user.is_authenticated:
+        #     return DictResponse("Token verified")
+        # access_token = request.COOKIES.get("access-token")
+        # refresh_token = request.COOKIES.get("refresh-token")
+        # visitor_id = request.COOKIES.get("visitorId") or request.headers.get(
+        #     "visitorId"
+        # )
+        # if access_token:
+        #     session = Session.objects.filter(
+        #         access_token=access_token, visitor_id=visitor_id
+        #     ).first()
+        #     if not session:
+        #         session = Session.objects.filter(
+        #             refresh_token=refresh_token,
+        #             visitor_id=visitor_id,
+        #             refresh_token_expires__gt=timezone.now(),
+        #         ).first()
+        #         if not session:
+        #             return DictResponse("Invalid token", status=401)
+        #         session.update_access_token()
+        #         response = DictResponse({"message": "Token verified"})
+        #         response.set_cookie(
+        #             "access-token",
+        #             session.access_token,
+        #             path="/",
+        #             expires=session.access_token_expires,
+        #             httponly=False,
+        #             samesite="None",
+        #             secure=True,
+        #         )
+        #     if (
+        #         session.access_token_expires < timezone.now()
+        #         and session.refresh_token_expires > timezone.now()
+        #     ):
+        #         session.update_access_token()
+        #         response = DictResponse("Token verified")
+        #         response.set_cookie(
+        #             "access-token",
+        #             session.access_token,
+        #             path="/",
+        #             expires=session.access_token_expires,
+        #             httponly=False,
+        #             samesite="None",
+        #             secure=True,
+        #         )
+        #     return response
+        # if refresh_token:
+        #     session = Session.objects.filter(
+        #         refresh_token=refresh_token,
+        #         visitor_id=visitor_id,
+        #         refresh_token_expires__gt=timezone.now(),
+        #     ).first()
+        #     if not session:
+        #         response = DictResponse("Invalid token", status=401)
+        #         response.remove_cookie("refresh-token")
+        #         return response
+        #     session.update_access_token()
+        #     response = DictResponse("Token verified")
+        #     response.set_cookie(
+        #         "access-token",
+        #         session.access_token,
+        #         path="/",
+        #         expires=session.access_token_expires,
+        #         httponly=False,
+        #         samesite="None",
+        #         secure=True,
+        #     )
+        #     return response
+        # return DictResponse("Invalid token", status=401)
 
 
 class logout(ApiView):

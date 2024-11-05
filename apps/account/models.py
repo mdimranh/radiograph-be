@@ -16,6 +16,9 @@ class Role(BaseModel):
         default=RoleStatus.ACTIVE,
     )
 
+    def users(self):
+        return self.users.all()[:5]
+
     def __str__(self):
         return f"{self.name} ({self.label})"
 
