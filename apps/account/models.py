@@ -3,7 +3,7 @@ from utils.models import BaseModel
 from django.contrib.auth.models import AbstractUser
 from .user_manager import CustomUserManager
 from utils.fields import PhoneNumberField
-from .choices import UserStatus, RoleStatus
+from .choices import UserStatus, RoleStatus, DepartmentStatus
 
 
 class Role(BaseModel):
@@ -18,6 +18,20 @@ class Role(BaseModel):
 
     def users(self):
         return self.users.all()[:5]
+
+    def __str__(self):
+        return f"{self.name} ({self.label})"
+    
+
+class Department(BaseModel):
+    label = models.CharField(max_length=100, unique=True, blank=False)
+    name = models.CharField(max_length=100, unique=True, blank=False)
+    cost = models.PositiveIntegerField(default=0)
+    status = models.CharField(
+        max_length=20,
+        choices=DepartmentStatus.choices,
+        default=DepartmentStatus.ACTIVE,
+    )
 
     def __str__(self):
         return f"{self.name} ({self.label})"

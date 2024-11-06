@@ -12,3 +12,9 @@ class RoleStatus(models.TextChoices):
     ACTIVE = "active", "Active"
     INACTIVE = "inactive", "Inactive"
     TERMINATED = "terminated", "Terminated"
+
+
+class DepartmentStatus(models.TextChoices):
+    ACTIVE = "active", "Active"
+    INACTIVE = "inactive", "Inactive"
+    TERMINATED = "terminated", "Terminated"
