@@ -10,3 +10,9 @@ class department(CrudAPIView):
     queryset = Department.objects.all()
     serializer_class = DepartmentSerializer
     lookup_field = "id"
+
+    def get(self, request, *args, **kwargs):
+        keyword = self.request.GET.get("keyword")
+        if keyword:
+            self.queryset = self.queryset.filter(name__contains=keyword)
+        return super().get(request, *args, **kwargs)
