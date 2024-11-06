@@ -193,7 +193,9 @@ class CrudAPIView(ApiView):
     def performe_create(self):
         serialize = self.validate()
         serialize.save()
-        return DictResponse(message=self.create_success_message, data=serialize.data)
+        return DictResponse(
+            message=self.create_success_message, data=serialize.data, status=201
+        )
 
     def post(self, request, *args, **kwargs):
         return self.performe_create()
