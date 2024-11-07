@@ -40,12 +40,7 @@ class Department(BaseModel):
 class User(AbstractUser, BaseModel):
     phone = PhoneNumberField(unique=True, db_index=True, verbose_name="Phone Number")
     email = models.EmailField(unique=True, db_index=True, max_length=50)
-    avatar = models.ImageField(
-        "Avatar",
-        upload_to="avatars",
-        null=True,
-        blank=True,
-    )
+
     role = models.ForeignKey(
         Role, related_name="users", on_delete=models.SET_NULL, null=True, blank=True
     )
