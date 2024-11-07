@@ -32,6 +32,7 @@ CSRF_TRUSTED_ORIGINS = ["http://localhost:3000"]
 # Application definition
 
 INSTALLED_APPS = [
+    "daphne",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -39,6 +40,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "corsheaders",
+    "channels",
     "rest_framework",
     "apps.account",
     "apps.session",
@@ -78,7 +80,15 @@ TEMPLATES = [
 AUTH_USER_MODEL = "account.User"
 
 WSGI_APPLICATION = "project.wsgi.application"
-
+ASGI_APPLICATION = "project.asgi.application"
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.pubsub.RedisPubSubChannelLayer",
+        "CONFIG": {
+            "hosts": [("localhost", 6379)],
+        },
+    },
+}
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
