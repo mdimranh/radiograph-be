@@ -21,7 +21,7 @@ class Role(BaseModel):
 
     def __str__(self):
         return f"{self.name} ({self.label})"
-    
+
 
 class Department(BaseModel):
     label = models.CharField(max_length=100, unique=True, blank=False)
@@ -49,6 +49,9 @@ class User(AbstractUser, BaseModel):
     role = models.ForeignKey(
         Role, related_name="users", on_delete=models.SET_NULL, null=True, blank=True
     )
+    isAdmin = models.BooleanField(default=False)
+    isRadiologist = models.BooleanField(default=False)
+    isRadiographer = models.BooleanField(default=False)
     status = models.CharField(
         max_length=20,
         choices=UserStatus.choices,
@@ -59,3 +62,26 @@ class User(AbstractUser, BaseModel):
     USERNAME_FIELD = "phone"
     REQUIRED_FIELDS = ["email"]
     USERNAME_FIELD = "phone"
+
+
+class Radiologist(BaseModel):
+    name = models.CharField(max_length=100, unique=True, blank=False)
+    phone = PhoneNumberField(unique=True, db_index=True, verbose_name="Phone Number")
+    email = models.EmailField(unique=True, db_index=True, max_length=50)
+    avatar = models.ImageField(
+        "Avatar",
+        upload_to="media/avatars",
+        null=True,
+        blank=True,
+    )
+    status = models.CharField(
+        max_length=20,
+        choices=UserStatus.choices,
+        default=UserStatus.ACTIVE,
+    )
+    department = models.ForeignKey(
+        Department, related_name="radiologists", on_delete=models.SET_NULL, null=True
+    )
+
+    def __str__(self):
+        return f"{self.phone}"
