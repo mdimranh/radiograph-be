@@ -9,6 +9,7 @@ from apps.account.models import User
 from apps.session.models import Session
 
 from .serializers import LoginSerializer
+from ..account.serializers import UserSerializer
 
 
 class login(ApiView):
@@ -30,13 +31,15 @@ class login(ApiView):
                 ip=request.META.get("REMOTE_ADDR"),
                 visitor_id=visitor_id,
             )
-            response = DictResponse("Login successful")
+            response = DictResponse(
+                "Login successful", data=UserSerializer(session.user).data
+            )
             response.set_cookie(
                 "access-token",
                 session.access_token,
                 path="/",
                 max_age=5 * 60,
-                httponly=True,
+                httponly=False,
                 samesite="None",
                 secure=True,
             )
@@ -45,7 +48,7 @@ class login(ApiView):
                 session.refresh_token,
                 path="/",
                 max_age=60 * 68 * 24,
-                httponly=True,
+                httponly=False,
                 samesite="None",
                 secure=True,
             )
@@ -86,13 +89,15 @@ class verify(ApiView):
                     response.delete_cookie("refresh-token")
                     return response
                 session.update_access_token()
-                response = DictResponse("Token verified")
+                response = DictResponse(
+                    "Token verified", data=UserSerializer(session.user).data
+                )
                 response.set_cookie(
                     "access-token",
                     session.access_token,
                     path="/",
                     max_age=5 * 60,
-                    httponly=True,
+                    httponly=False,
                     samesite="None",
                     secure=True,
                 )
@@ -102,13 +107,15 @@ class verify(ApiView):
                 and session.refresh_token_expires > timezone.now()
             ):
                 session.update_access_token()
-                response = DictResponse("Token verified")
+                response = DictResponse(
+                    "Token verified", data=UserSerializer(session.user).data
+                )
                 response.set_cookie(
                     "access-token",
                     session.access_token,
                     path="/",
                     max_age=5 * 60,
-                    httponly=True,
+                    httponly=False,
                     samesite="None",
                     secure=True,
                 )
@@ -124,13 +131,15 @@ class verify(ApiView):
             response.delete_cookie("refresh-token")
             return response
         session.update_access_token()
-        response = DictResponse("Token verified")
+        response = DictResponse(
+            "Token verified", data=UserSerializer(session.user).data
+        )
         response.set_cookie(
             "access-token",
             session.access_token,
             path="/",
             max_age=5 * 60,
-            httponly=True,
+            httponly=False,
             samesite="None",
             secure=True,
         )

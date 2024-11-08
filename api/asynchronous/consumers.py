@@ -45,6 +45,7 @@ class AsyncConsumer(AsyncWebsocketConsumer):
 
 class UserConsumer(AsyncWebsocketConsumer):
     async def connect(self):
+        print("Connecting .......")
         self.user_id = self.scope["user"].pk
         client.sadd("users", self.user_id)
         await self.channel_layer.group_add(f"user_{self.user_id}", self.channel_name)
@@ -57,14 +58,14 @@ class UserConsumer(AsyncWebsocketConsumer):
         )
 
     async def receive(self, text_data):
-        text_data_json = json.loads(text_data)
-        message = text_data_json["message"]
+        # text_data_json = json.loads(text_data)
+        # message = text_data_json["message"]
 
         await self.channel_layer.group_send(
-            f"user_{self.user_id}", {"type": "chat.message", "message": message}
+            f"user_{self.user_id}", {"type": "chat.message", "message": text_data}
         )
 
     async def chat_message(self, event):
         message = event["message"]
 
-        await self.send(text_data=json.dumps({"message": message}))
+        await self.send(text_data=message)
