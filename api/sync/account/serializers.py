@@ -26,7 +26,6 @@ class ProfileSerializer(ModelSerializer):
             "gender",
             "marital_status",
             "blood_group",
-            "certificate",
             "department",
         ]
 
