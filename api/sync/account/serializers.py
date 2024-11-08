@@ -18,14 +18,14 @@ class DepartmentSerializer(serializers.ModelSerializer):
 
 
 class RadiologistProfileSerializer(serializers.ModelSerializer):
-    avatar_url = serializers.SerializerMethodField()
+    avatar = serializers.SerializerMethodField()
     department = serializers.SerializerMethodField()
 
     class Meta:
         model = RadiologistProfile
         fields = [
             "about",
-            "avatar_url",
+            "avatar",
             "gender",
             "marital_status",
             "blood_group",
@@ -33,7 +33,7 @@ class RadiologistProfileSerializer(serializers.ModelSerializer):
             "department",
         ]
 
-    def get_avatar_url(self, obj):
+    def get_avatar(self, obj):
         request = self.context.get("request")
         if obj.avatar and request:
             return request.build_absolute_uri(obj.avatar.url)
@@ -49,6 +49,7 @@ class RadiologistProfileSerializer(serializers.ModelSerializer):
 
 class RadiographerProfileSerializer(serializers.ModelSerializer):
     department = serializers.SerializerMethodField()
+    avatar = serializers.SerializerMethodField()
 
     class Meta:
         model = RadiographerProfile
@@ -70,8 +71,16 @@ class RadiographerProfileSerializer(serializers.ModelSerializer):
             return serializer.data
         return None
 
+    def get_avatar(self, obj):
+        request = self.context.get("request")
+        if obj.avatar and request:
+            return request.build_absolute_uri(obj.avatar.url)
+        return None
+
 
 class AdminProfileSerializer(serializers.ModelSerializer):
+    avatar = serializers.SerializerMethodField()
+
     class Meta:
         model = AdminProfile
         fields = [
@@ -82,6 +91,12 @@ class AdminProfileSerializer(serializers.ModelSerializer):
             "blood_group",
             "certificate",
         ]
+
+    def get_avatar(self, obj):
+        request = self.context.get("request")
+        if obj.avatar and request:
+            return request.build_absolute_uri(obj.avatar.url)
+        return None
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -96,7 +111,9 @@ class UserSerializer(serializers.ModelSerializer):
         depth = 3
 
     def get_full_name(self, obj):
-        full_name = f"{obj.first_name} {obj.last_name}"
+        full_name = (
+            f"{obj.first_name} {obj.last_name}" if obj.last_name else obj.first_name
+        )
         return full_name.strip()
 
     def get_radiologist_profile(self, obj):

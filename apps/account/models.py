@@ -40,6 +40,8 @@ class Department(BaseModel):
 class User(AbstractUser, BaseModel):
     phone = PhoneNumberField(unique=True, db_index=True, verbose_name="Phone Number")
     email = models.EmailField(unique=True, db_index=True, max_length=50)
+    first_name = models.CharField(max_length=30)
+    last_name = models.CharField(max_length=30, blank=True, null=True)
 
     role = models.ForeignKey(
         Role, related_name="users", on_delete=models.SET_NULL, null=True, blank=True
@@ -57,6 +59,17 @@ class User(AbstractUser, BaseModel):
     USERNAME_FIELD = "phone"
     REQUIRED_FIELDS = ["email"]
     USERNAME_FIELD = "phone"
+
+    def __str__(self):
+        return (
+            f"Admin - {self.phone}"
+            if self.isAdmin
+            else (
+                f"Radiologist - {self.phone}"
+                if self.isRadiologist
+                else f"Radiographer - {self.phone}"
+            )
+        )
 
 
 class Radiologist(BaseModel):
