@@ -148,7 +148,6 @@ class CrudAPIView(ApiView):
         if serializer is None:
             raise ValueError("Serializer class not added.")
         serializer.request = self.request
-
         return serializer
 
     def get_data(self):
@@ -156,7 +155,7 @@ class CrudAPIView(ApiView):
         return queryset
 
     def serialize_data(self):
-        serializer = self.get_serializer_class()
+        serializer = self.get_serializer
         data = self.get_data()
         if self.request.method.lower() == "details" and data is None:
             return None
@@ -169,7 +168,11 @@ class CrudAPIView(ApiView):
 
     def get(self, request, *args, **kwargs):
         data = self.serialize_data()
-        return DictResponse(data=data, safe=False)
+        return DictResponse(
+            data=data,
+            message=self.not_found_error_message if not data else "",
+            safe=False,
+        )
 
     def details(self, request, *args, **kwargs):
         data = self.serialize_data()
