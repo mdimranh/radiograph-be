@@ -19,3 +19,9 @@ class radiographer(CrudAPIView):
     queryset = User.objects.filter(isRadiographer=True)
     serializer_class = UserSerializer
     lookup_field = "id"
+
+
+class user(CrudAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    lookup_field = "id"

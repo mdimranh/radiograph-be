@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from apps.session.models import Session
 
 
 class LoginSerializer(serializers.Serializer):
@@ -15,3 +16,9 @@ class LoginSerializer(serializers.Serializer):
                 {"phone": "Phone number must be 11 digits"}
             )
         return data
+
+
+class SessionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Session
+        fields = "__all__"

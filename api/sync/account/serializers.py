@@ -1,7 +1,9 @@
 from rest_framework.serializers import ModelSerializer
 from rest_framework import serializers
 from apps.account.models import Role, Department, User
+from apps.session.models import Session
 
+from ..auth.serializers import SessionSerializer
 
 from rest_framework import serializers
 from apps.profiles.models import (
@@ -101,9 +103,11 @@ class AdminProfileSerializer(serializers.ModelSerializer):
 
 class UserSerializer(serializers.ModelSerializer):
     full_name = serializers.SerializerMethodField()
-    radiologist_profile = serializers.SerializerMethodField()
-    radiographer_profile = serializers.SerializerMethodField()
-    admin_profile = serializers.SerializerMethodField()
+    # radiologist_profile = serializers.SerializerMethodField()
+    # radiographer_profile = serializers.SerializerMethodField()
+    # admin_profile = serializers.SerializerMethodField()
+    profile = serializers.SerializerMethodField()
+    session = serializers.SerializerMethodField()
 
     class Meta:
         model = User
@@ -116,26 +120,48 @@ class UserSerializer(serializers.ModelSerializer):
         )
         return full_name.strip()
 
-    def get_radiologist_profile(self, obj):
+    # def get_radiologist_profile(self, obj):
+    #     if hasattr(obj, "isRadiologist") and obj.isRadiologist:
+    #         data = RadiologistProfile.objects.filter(user=obj).first()
+    #         if data:
+    #             serializer = RadiologistProfileSerializer(data, context=self.context)
+    #             return serializer.data
+    #     return None
+
+    # def get_radiographer_profile(self, obj):
+    #     if hasattr(obj, "isRadiographer") and obj.isRadiographer:
+    #         data = RadiographerProfile.objects.filter(user=obj).first()
+    #         if data:
+    #             serializer = RadiographerProfileSerializer(data, context=self.context)
+    #             return serializer.data
+    #     return None
+
+    # def get_admin_profile(self, obj):
+    #     if hasattr(obj, "isAdmin") and obj.isAdmin:
+    #         data = AdminProfile.objects.filter(user=obj).first()
+    #         if data:
+    #             serializer = AdminProfileSerializer(data, context=self.context)
+    #             return serializer.data
+    #     return None
+
+    def get_profile(self, obj):
         if hasattr(obj, "isRadiologist") and obj.isRadiologist:
             data = RadiologistProfile.objects.filter(user=obj).first()
             if data:
                 serializer = RadiologistProfileSerializer(data, context=self.context)
                 return serializer.data
-        return None
-
-    def get_radiographer_profile(self, obj):
-        if hasattr(obj, "isRadiographer") and obj.isRadiographer:
+        elif hasattr(obj, "isRadiographer") and obj.isRadiographer:
             data = RadiographerProfile.objects.filter(user=obj).first()
             if data:
                 serializer = RadiographerProfileSerializer(data, context=self.context)
                 return serializer.data
-        return None
-
-    def get_admin_profile(self, obj):
-        if hasattr(obj, "isAdmin") and obj.isAdmin:
+        elif hasattr(obj, "isAdmin") and obj.isAdmin:
             data = AdminProfile.objects.filter(user=obj).first()
             if data:
                 serializer = AdminProfileSerializer(data, context=self.context)
                 return serializer.data
         return None
+
+    def get_session(self, obj):
+        session = Session.objects.filter(user=obj).order_by("-updated").first()
+        return SessionSerializer(session).data
