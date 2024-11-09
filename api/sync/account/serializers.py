@@ -1,10 +1,11 @@
 from rest_framework.serializers import ModelSerializer
 from rest_framework import serializers
-from apps.account.models import Role, Department, User
+from apps.account.models import User
 from apps.session.models import Session
 
 from ..auth.serializers import SessionSerializer
 
+from api.sync.settings.serializers import DepartmentSerializer
 from rest_framework import serializers
 from apps.profiles.models import (
     RadiologistProfile,
@@ -13,25 +14,22 @@ from apps.profiles.models import (
 )
 
 
-class DepartmentSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Department
-        fields = "__all__"
-
-
-class RadiologistProfileSerializer(serializers.ModelSerializer):
+class ProfileSerializer(ModelSerializer):
     avatar = serializers.SerializerMethodField()
     department = serializers.SerializerMethodField()
 
+    def __init__(self, *args, **kwargs):
+        self.role = kwargs.pop("role", None)
+        super().__init__(*args, **kwargs)
+
     class Meta:
-        model = RadiologistProfile
+        model = None  # Set dynamically
         fields = [
             "about",
             "avatar",
             "gender",
             "marital_status",
             "blood_group",
-            "certificate",
             "department",
         ]
 
@@ -42,77 +40,39 @@ class RadiologistProfileSerializer(serializers.ModelSerializer):
         return None
 
     def get_department(self, obj):
-        data = Department.objects.filter(id=obj.department.id).first()
-        if data:
-            serializer = DepartmentSerializer(data)
-            return serializer.data
+        # Check if the object has the 'department' attribute
+        if hasattr(obj, "department"):
+            if hasattr(obj.department, "all"):
+                departments = obj.department.all()
+                if departments.exists():
+                    serializer = DepartmentSerializer(departments, many=True)
+                    return serializer.data
+            elif obj.department:
+                serializer = DepartmentSerializer(obj.department)
+                return serializer.data
         return None
 
+    def to_representation(self, instance):
+        # Dynamically set the model based on the role
+        if self.role == "radiologist":
+            self.Meta.model = RadiologistProfile
+        elif self.role == "radiographer":
+            self.Meta.model = RadiographerProfile
+        elif self.role == "admin":
+            self.Meta.model = AdminProfile
 
-class RadiographerProfileSerializer(serializers.ModelSerializer):
-    department = serializers.SerializerMethodField()
-    avatar = serializers.SerializerMethodField()
-
-    class Meta:
-        model = RadiographerProfile
-        fields = [
-            "about",
-            "avatar",
-            "gender",
-            "marital_status",
-            "blood_group",
-            "certificate",
-            "department",
-        ]
-
-    def get_department(self, obj):
-        # Check if the object has a ManyToMany relationship and is not empty
-        if obj.department.exists():
-            departments = obj.department.all()  # Get all related departments
-            serializer = DepartmentSerializer(departments, many=True)
-            return serializer.data
-        return None
-
-    def get_avatar(self, obj):
-        request = self.context.get("request")
-        if obj.avatar and request:
-            return request.build_absolute_uri(obj.avatar.url)
-        return None
-
-
-class AdminProfileSerializer(serializers.ModelSerializer):
-    avatar = serializers.SerializerMethodField()
-
-    class Meta:
-        model = AdminProfile
-        fields = [
-            "about",
-            "avatar",
-            "gender",
-            "marital_status",
-            "blood_group",
-            "certificate",
-        ]
-
-    def get_avatar(self, obj):
-        request = self.context.get("request")
-        if obj.avatar and request:
-            return request.build_absolute_uri(obj.avatar.url)
-        return None
+        return super().to_representation(instance)
 
 
 class UserSerializer(serializers.ModelSerializer):
     full_name = serializers.SerializerMethodField()
-    # radiologist_profile = serializers.SerializerMethodField()
-    # radiographer_profile = serializers.SerializerMethodField()
-    # admin_profile = serializers.SerializerMethodField()
     profile = serializers.SerializerMethodField()
     session = serializers.SerializerMethodField()
 
     class Meta:
         model = User
         exclude = ["password"]
-        depth = 3
+        depth = 1
 
     def get_full_name(self, obj):
         full_name = (
@@ -120,45 +80,25 @@ class UserSerializer(serializers.ModelSerializer):
         )
         return full_name.strip()
 
-    # def get_radiologist_profile(self, obj):
-    #     if hasattr(obj, "isRadiologist") and obj.isRadiologist:
-    #         data = RadiologistProfile.objects.filter(user=obj).first()
-    #         if data:
-    #             serializer = RadiologistProfileSerializer(data, context=self.context)
-    #             return serializer.data
-    #     return None
-
-    # def get_radiographer_profile(self, obj):
-    #     if hasattr(obj, "isRadiographer") and obj.isRadiographer:
-    #         data = RadiographerProfile.objects.filter(user=obj).first()
-    #         if data:
-    #             serializer = RadiographerProfileSerializer(data, context=self.context)
-    #             return serializer.data
-    #     return None
-
-    # def get_admin_profile(self, obj):
-    #     if hasattr(obj, "isAdmin") and obj.isAdmin:
-    #         data = AdminProfile.objects.filter(user=obj).first()
-    #         if data:
-    #             serializer = AdminProfileSerializer(data, context=self.context)
-    #             return serializer.data
-    #     return None
-
     def get_profile(self, obj):
         if hasattr(obj, "isRadiologist") and obj.isRadiologist:
             data = RadiologistProfile.objects.filter(user=obj).first()
             if data:
-                serializer = RadiologistProfileSerializer(data, context=self.context)
+                serializer = ProfileSerializer(
+                    data, context=self.context, role="radiologist"
+                )
                 return serializer.data
         elif hasattr(obj, "isRadiographer") and obj.isRadiographer:
             data = RadiographerProfile.objects.filter(user=obj).first()
             if data:
-                serializer = RadiographerProfileSerializer(data, context=self.context)
+                serializer = ProfileSerializer(
+                    data, context=self.context, role="radiographer"
+                )
                 return serializer.data
         elif hasattr(obj, "isAdmin") and obj.isAdmin:
             data = AdminProfile.objects.filter(user=obj).first()
             if data:
-                serializer = AdminProfileSerializer(data, context=self.context)
+                serializer = ProfileSerializer(data, context=self.context, role="admin")
                 return serializer.data
         return None
 
