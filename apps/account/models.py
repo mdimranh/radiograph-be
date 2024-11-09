@@ -67,7 +67,11 @@ class User(AbstractUser, BaseModel):
             else (
                 f"Radiologist - {self.phone}"
                 if self.isRadiologist
-                else f"Radiographer - {self.phone}"
+                else (
+                    f"Radiographer - {self.phone}"
+                    if self.isRadiographer
+                    else f"User - {self.phone}"
+                )
             )
         )
 

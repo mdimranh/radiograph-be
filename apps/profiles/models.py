@@ -1,7 +1,20 @@
+from pydoc import describe
+from tracemalloc import start
+from unittest.mock import Base
 from django.db import models
+from apps import session
 from utils.models import BaseModel
 from utils.fields import PhoneNumberField
 from .choices import GenderType, BloodGroupType, MaritalStatusType
+
+
+class Certificate(BaseModel):
+    name = models.CharField(max_length=100, unique=True, blank=False)
+    start = models.DateField()
+    end = models.DateField()
+    passedYear = models.PositiveIntegerField()
+    result = models.FloatField("Result")
+    file = models.FileField("Certificate", upload_to="media/certificates")
 
 
 class ProfileBase(BaseModel):
@@ -27,12 +40,7 @@ class ProfileBase(BaseModel):
         choices=BloodGroupType.choices,
         default=BloodGroupType.A_PLUS,
     )
-    certificate = models.FileField(
-        "Certificate",
-        upload_to="media/certificates",
-        null=True,
-        blank=True,
-    )
+    certificate = models.ManyToManyField(Certificate, blank=True)
     user = models.OneToOneField(
         "account.User",
         on_delete=models.CASCADE,
@@ -43,7 +51,7 @@ class ProfileBase(BaseModel):
         abstract = True
 
     def __str__(self):
-        return f"{self.user.phone}"
+        return f"{self.user}"
 
 
 class RadiologistProfile(ProfileBase):
