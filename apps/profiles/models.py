@@ -1,4 +1,5 @@
 from pydoc import describe
+from re import U
 from tracemalloc import start
 from unittest.mock import Base
 from django.db import models
@@ -6,6 +7,7 @@ from apps import session
 from utils.models import BaseModel
 from utils.fields import PhoneNumberField
 from .choices import GenderType, BloodGroupType, MaritalStatusType
+from apps.account.models import User, Department
 
 
 class Certificate(BaseModel):
@@ -42,7 +44,7 @@ class ProfileBase(BaseModel):
     )
     certificate = models.ManyToManyField(Certificate, blank=True)
     user = models.OneToOneField(
-        "account.User",
+        User,
         on_delete=models.CASCADE,
         related_name="%(class)s_profile",
     )
@@ -56,7 +58,7 @@ class ProfileBase(BaseModel):
 
 class RadiologistProfile(ProfileBase):
     department = models.ForeignKey(
-        "account.Department",
+        Department,
         on_delete=models.SET_NULL,
         null=True,
         related_name="radiologist_department",
@@ -65,7 +67,7 @@ class RadiologistProfile(ProfileBase):
 
 class RadiographerProfile(ProfileBase):
     department = models.ManyToManyField(
-        "account.Department", related_name="radiographer_department"
+        Department, related_name="radiographer_department"
     )
 
 

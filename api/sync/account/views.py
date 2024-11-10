@@ -1,6 +1,8 @@
 from restapi.views.crud import CrudAPIView
 from apps.account.models import User
-from .serializers import UserSerializer
+from .serializers import (
+    UserSerializer,
+)
 from django.db.models import Q
 from restapi.response import DictResponse
 
