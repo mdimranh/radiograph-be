@@ -11,7 +11,7 @@ class BaseUserhView(CrudAPIView):
     serializer_class = UserSerializer
     lookup_field = "id"
 
-    def get(self, request, *args, **kwargs):
+    def get_queryset(self):
         keyword = self.request.GET.get("keyword")
         if keyword:
             self.queryset = self.queryset.filter(
@@ -20,10 +20,7 @@ class BaseUserhView(CrudAPIView):
                 | Q(phone__icontains=keyword)
             )
 
-        serializer = self.get_serializer(self.queryset, many=True)
-        data = serializer.data
-
-        return DictResponse(data=data, status=200, message="successful", safe=False)
+        return super().get_queryset()
 
 
 class radiologist(BaseUserhView):
@@ -32,15 +29,13 @@ class radiologist(BaseUserhView):
 
 class radiographer(BaseUserhView):
     queryset = User.objects.filter(isRadiographer=True)
-    serializer_class = UserSerializer
-    lookup_field = "id"
+
+
+class admin(BaseUserhView):
+    queryset = User.objects.filter(isAdmin=True)
 
 
 class user(CrudAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     lookup_field = "id"
-
-
-class admin(BaseUserhView):
-    queryset = User.objects.prefetch_related("role").filter(isAdmin=True)

@@ -9,9 +9,11 @@ from .serializers import (
     RadiologistProfileSerializer,
     AdminProfileSerializer,
 )
-
+from api.sync.account.serializers import UserSerializer
 from restapi.response import DictResponse
 from restapi.views import ApiView
+
+import time
 
 
 class AdminRoleChange(CrudAPIView):
@@ -80,11 +82,18 @@ class ProfileChange(ApiView):
                 data=serializer.errors,
             )
 
-        serializer.save()
+        update = serializer.save()
+        if update:
+            return DictResponse(
+                message="Profile updated",
+                status=200,
+                data=serializer.data,
+            )
+
         return DictResponse(
-            message="Profile updated",
-            status=200,
-            data=serializer.data,
+            message="Profile not updated",
+            status=400,
+            data=None,
         )
 
 

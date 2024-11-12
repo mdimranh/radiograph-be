@@ -6,6 +6,7 @@ from apps.session.models import Session
 from ..auth.serializers import SessionSerializer
 
 from api.sync.settings.serializers import DepartmentSerializer
+from api.sync.profile.serializers import CertificateSerializer
 from rest_framework import serializers
 from apps.profiles.models import (
     RadiologistProfile,
@@ -17,6 +18,7 @@ from apps.profiles.models import (
 class ProfileSerializer(ModelSerializer):
     avatar = serializers.SerializerMethodField()
     department = serializers.SerializerMethodField()
+    certificate = serializers.SerializerMethodField()
 
     def __init__(self, *args, **kwargs):
         self.role = kwargs.pop("role", None)
@@ -31,6 +33,7 @@ class ProfileSerializer(ModelSerializer):
             "marital_status",
             "blood_group",
             "department",
+            "certificate",
         ]
 
     def get_avatar(self, obj):
@@ -50,6 +53,19 @@ class ProfileSerializer(ModelSerializer):
             elif obj.department:
                 serializer = DepartmentSerializer(obj.department)
                 return serializer.data
+        return None
+
+    def get_certificate(self, obj):
+        # Check if the object has the 'certificate' attribute
+        request = self.context.get("request")
+        if hasattr(obj, "certificate") and request:
+            certificates = obj.certificate.all()
+            if certificates.exists():
+                serializer = CertificateSerializer(
+                    certificates, context=self.context, many=True
+                )
+                return serializer.data
+
         return None
 
     def to_representation(self, instance):

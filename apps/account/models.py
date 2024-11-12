@@ -54,6 +54,7 @@ class User(AbstractUser, BaseModel):
         choices=UserStatus.choices,
         default=UserStatus.ACTIVE,
     )
+    fee = models.PositiveIntegerField(default=0)
     objects = CustomUserManager()
 
     USERNAME_FIELD = "phone"
