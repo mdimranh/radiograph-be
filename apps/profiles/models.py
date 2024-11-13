@@ -66,8 +66,11 @@ class RadiologistProfile(ProfileBase):
 
 
 class RadiographerProfile(ProfileBase):
-    department = models.ManyToManyField(
-        Department, related_name="radiographer_department"
+    department = models.ForeignKey(
+        Department,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="radiographer_department",
     )
 
 
