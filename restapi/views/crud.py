@@ -1,3 +1,4 @@
+from turtle import update
 from django.db.models import QuerySet
 from rest_framework import serializers
 from django.http import Http404
@@ -5,6 +6,7 @@ from ..response import DictResponse
 from ..exceptions import ValidationError
 from ..pagination import PageLimitPagination
 from enum import Enum
+from django.db.models import ManyToManyField
 
 from . import ApiView
 
@@ -204,17 +206,56 @@ class CrudAPIView(ApiView):
         return self.performe_create()
 
     def perform_update(self):
-        queryset = self.get_queryset()
-        if queryset is None:
+        instance = self.get_object(queryset=self.get_queryset())
+
+        if not instance:
             return DictResponse(message="Data not found.", status=404)
 
         data = self.request.data
-        serializer = self.get_serializer(self.get_queryset(), data=data, partial=True)
+
+        # Track initial values for comparison
+        initial_values = {field: getattr(instance, field) for field in data.keys()}
+
+        # Dynamically track initial values for ManyToMany relationships
+        initial_m2m_values = {}
+        for field in instance._meta.get_fields():
+            if isinstance(field, ManyToManyField) and field.name in data:
+                initial_m2m_values[field.name] = set(
+                    getattr(instance, field.name).values_list("id", flat=True)
+                )
+
+        # Validate and save changes
+        serializer = self.get_serializer(instance, data=data, partial=True)
         if not serializer.is_valid():
             raise ValidationError(
                 message=self.validation_error_message, field_errors=serializer.errors
             )
+
         serializer.save()
+
+        # Track updated values after saving
+        updated_instance = serializer.instance
+        updated_values = {
+            field: getattr(updated_instance, field) for field in data.keys()
+        }
+
+        # Dynamically track updated values for ManyToMany relationships
+        updated_m2m_values = {}
+        for field in updated_instance._meta.get_fields():
+            if isinstance(field, ManyToManyField) and field.name in data:
+                updated_m2m_values[field.name] = set(
+                    getattr(updated_instance, field.name).values_list("id", flat=True)
+                )
+
+        # Compare initial and updated values for standard fields and ManyToMany relationships
+        if initial_values == updated_values and all(
+            initial_m2m_values.get(field) == updated_m2m_values.get(field)
+            for field in initial_m2m_values
+        ):
+            # No changes were detected
+            return DictResponse(message="Nothing was updated.", status=200)
+
+        # If updates were detected
         return DictResponse(message=self.update_success_message, data=serializer.data)
 
     def put(self, request, *args, **kwargs):
