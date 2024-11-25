@@ -16,7 +16,7 @@ class Certificate(BaseModel):
     end = models.DateField()
     passedYear = models.PositiveIntegerField()
     result = models.FloatField("Result")
-    file = models.FileField("Certificate", upload_to="media/certificates")
+    file = models.FileField("Certificate", upload_to="certificates")
 
 
 class ProfileBase(BaseModel):
