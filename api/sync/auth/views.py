@@ -32,7 +32,8 @@ class login(ApiView):
                 visitor_id=visitor_id,
             )
             response = DictResponse(
-                "Login successful", data=UserSerializer(session.user).data
+                "Login successful",
+                data=UserSerializer(session.user, context={"request": request}).data,
             )
             response.set_cookie(
                 "access-token",
@@ -89,8 +90,10 @@ class verify(ApiView):
                     response.delete_cookie("refresh-token")
                     return response
                 session.update_access_token()
+                getUser = User.objects.get(id=session.user.id)
                 response = DictResponse(
-                    "Token verified", data=UserSerializer(session.user).data
+                    "Token verified",
+                    data=UserSerializer(getUser, context={"request": request}).data,
                 )
                 response.set_cookie(
                     "access-token",
@@ -107,8 +110,10 @@ class verify(ApiView):
                 and session.refresh_token_expires > timezone.now()
             ):
                 session.update_access_token()
+                getUser = User.objects.get(id=session.user.id)
                 response = DictResponse(
-                    "Token verified", data=UserSerializer(session.user).data
+                    "Token verified",
+                    data=UserSerializer(getUser, context={"request": request}).data,
                 )
                 response.set_cookie(
                     "access-token",
@@ -131,8 +136,10 @@ class verify(ApiView):
             response.delete_cookie("refresh-token")
             return response
         session.update_access_token()
+        getUser = User.objects.get(id=session.user.id)
         response = DictResponse(
-            "Token verified", data=UserSerializer(session.user).data
+            "Token verified",
+            data=UserSerializer(getUser, context={"request": request}).data,
         )
         response.set_cookie(
             "access-token",

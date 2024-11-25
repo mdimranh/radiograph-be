@@ -83,7 +83,7 @@ class Radiologist(BaseModel):
     email = models.EmailField(unique=True, db_index=True, max_length=50)
     avatar = models.ImageField(
         "Avatar",
-        upload_to="media/avatars",
+        upload_to="avatars",
         null=True,
         blank=True,
     )

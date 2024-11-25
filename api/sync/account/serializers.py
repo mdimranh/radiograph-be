@@ -16,7 +16,6 @@ from apps.profiles.models import (
 
 
 class ProfileSerializer(ModelSerializer):
-    avatar = serializers.SerializerMethodField()
     department = serializers.SerializerMethodField()
     certificate = serializers.SerializerMethodField()
 
@@ -35,12 +34,7 @@ class ProfileSerializer(ModelSerializer):
             "department",
             "certificate",
         ]
-
-    def get_avatar(self, obj):
-        request = self.context.get("request")
-        if obj.avatar and request:
-            return request.build_absolute_uri(obj.avatar.url)
-        return None
+        read_only_fields = ["avatar"]
 
     def get_department(self, obj):
         # Check if the object has the 'department' attribute
@@ -115,6 +109,7 @@ class UserSerializer(serializers.ModelSerializer):
             data = AdminProfile.objects.filter(user=obj).first()
             if data:
                 serializer = ProfileSerializer(data, context=self.context, role="admin")
+                print(serializer.data)
                 return serializer.data
         return None
 
