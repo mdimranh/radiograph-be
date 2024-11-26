@@ -1,5 +1,6 @@
 from rest_framework.serializers import ModelSerializer
 from apps.account.models import Role, Department, Radiologist
+from apps.settings.models import siteConfig
 from rest_framework import serializers
 
 
@@ -12,6 +13,11 @@ class RoleSerializer(ModelSerializer):
 class DepartmentSerializer(ModelSerializer):
     class Meta:
         model = Department
+        fields = "__all__"
+
+class siteConfigSerializer(ModelSerializer):
+    class Meta:
+        model = siteConfig
         fields = "__all__"
 
 

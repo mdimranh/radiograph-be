@@ -23,7 +23,7 @@ class ProfileBase(BaseModel):
     about = models.TextField(max_length=500, blank=True)
     avatar = models.ImageField(
         "Avatar",
-        upload_to="media/avatars",
+        upload_to="avatars",
         null=True,
         blank=True,
     )
