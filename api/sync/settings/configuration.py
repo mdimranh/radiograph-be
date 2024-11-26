@@ -11,8 +11,9 @@ class configuration(CrudAPIView):
     lookup_field = "id"
 
     def put(self, request):
+        data = request.data
         config = siteConfig.get_instance()
-        serializer = siteConfigSerializer(config, data=request.data, partial=True)
+        serializer = siteConfigSerializer(config, data=data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return DictResponse(

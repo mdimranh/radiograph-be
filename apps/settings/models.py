@@ -1,8 +1,8 @@
 from django.db import models
 
 class siteConfig(models.Model):
-    logo = models.ImageField(upload_to="site_config/", null=True, blank=True)
-    favicon = models.ImageField(upload_to="site_config/", null=True, blank=True)
+    logo = models.ImageField(upload_to="site_config", null=True, blank=True)
+    favicon = models.ImageField(upload_to="site_config", null=True, blank=True)
     default_color = models.CharField(max_length=20, default="#FFFFFF")
     title = models.CharField(max_length=255, default="My Site")
 
