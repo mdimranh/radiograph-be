@@ -56,6 +56,27 @@ class User(AbstractUser, BaseModel):
     )
     fee = models.PositiveIntegerField(default=0)
     objects = CustomUserManager()
+    addBy = models.ForeignKey(
+        "self",
+        related_name="added_by",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+    )
+    approvedBy = models.ForeignKey(
+        "self",
+        related_name="approved_by",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+    )
+    rejectedBy = models.ForeignKey(
+        "self",
+        related_name="rejected_by",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+    )
 
     USERNAME_FIELD = "phone"
     REQUIRED_FIELDS = ["email"]
@@ -75,26 +96,3 @@ class User(AbstractUser, BaseModel):
                 )
             )
         )
-
-
-class Radiologist(BaseModel):
-    name = models.CharField(max_length=100, unique=True, blank=False)
-    phone = PhoneNumberField(unique=True, db_index=True, verbose_name="Phone Number")
-    email = models.EmailField(unique=True, db_index=True, max_length=50)
-    avatar = models.ImageField(
-        "Avatar",
-        upload_to="avatars",
-        null=True,
-        blank=True,
-    )
-    status = models.CharField(
-        max_length=20,
-        choices=UserStatus.choices,
-        default=UserStatus.ACTIVE,
-    )
-    department = models.ForeignKey(
-        Department, related_name="radiologists", on_delete=models.SET_NULL, null=True
-    )
-
-    def __str__(self):
-        return f"{self.phone}"

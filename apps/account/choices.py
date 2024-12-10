@@ -6,6 +6,7 @@ class UserStatus(models.TextChoices):
     INACTIVE = "inactive", "Inactive"
     SUSPENDED = "suspended", "Suspended"
     PENDING = "pending", "Pending"
+    REJECTED = "rejected", "Rejected"
 
 
 class RoleStatus(models.TextChoices):
