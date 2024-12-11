@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login to Your Account</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f3f4f6;
+      margin: 0;
+      padding: 0;
+    }
+    .email-container {
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: #ffffff;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .email-header {
+      background-color: #3b82f6;
+      color: #ffffff;
+      text-align: center;
+      padding: 20px;
+      font-size: 20px;
+    }
+    .email-body {
+      padding: 20px;
+      color: #333333;
+    }
+    .email-body h2 {
+      color: #3b82f6;
+    }
+    .email-body p {
+      line-height: 1.6;
+      margin: 10px 0;
+    }
+    .email-body a {
+      color: #3b82f6;
+      text-decoration: none;
+    }
+    .email-footer {
+      text-align: center;
+      padding: 15px;
+      font-size: 12px;
+      color: #888888;
+      background-color: #f9fafb;
+    }
+  </style>
+</head>
+<body>
+  <div class="email-container">
+    <div class="email-header">
+      Login to Your Account
+    </div>
+    <div class="email-body">
+      <p>Dear {{first_name}} {{last_name}},</p>
+      <p>
+        We’ve noticed that you prefer logging in with your phone number: {{phone}} and password: {{password}}. Here’s how you can easily access your account:
+      </p>
+      <ol>
+          <li><a href="http://localhost:3000/auth/signin">Visit Login Page</a>.</li>
+        <li>Enter your registered <strong>phone number</strong> and <strong>password</strong> in the respective fields.</li>
+        <li>Click <strong>Login</strong> to access your account.</li>
+      </ol>
+      <p>
+        For security, make sure to keep your password confidential and avoid sharing it with others.
+      </p>
+      <p>Thank you for choosing the Radiograph.</p>
+      <p>Best regards,<br>Radiograph Team</p>
+    </div>
+    <div class="email-footer">
+      radiograhp@gamil.com
+    </div>
+  </div>
+</body>
+</html>
