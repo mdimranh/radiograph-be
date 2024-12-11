@@ -1,11 +1,11 @@
 from rest_framework.serializers import ModelSerializer
 from rest_framework import serializers
-from apps.account.models import User
+from apps.account.models import Role, User
 from apps.session.models import Session
 
 from ..auth.serializers import SessionSerializer
 
-from api.sync.settings.serializers import DepartmentSerializer
+from api.sync.settings.serializers import DepartmentSerializer, RoleSerializer
 from api.sync.profile.serializers import CertificateSerializer
 from rest_framework import serializers
 from apps.profiles.models import (
@@ -78,10 +78,17 @@ class UserSerializer(serializers.ModelSerializer):
     full_name = serializers.SerializerMethodField()
     profile = serializers.SerializerMethodField()
     session = serializers.SerializerMethodField()
+    addBy = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.all(), required=False, allow_null=True
+    )
+    password = serializers.CharField(write_only=True, required=True, min_length=8)
+    role = RoleSerializer(read_only=True)
 
+    # Use PrimaryKeyRelatedField for writing (passing the role ID)
+    role_id = serializers.PrimaryKeyRelatedField(queryset=Role.objects.all(), write_only=True, source='role')
     class Meta:
         model = User
-        exclude = ["password"]
+        exclude = []
         depth = 1
 
     def get_full_name(self, obj):
